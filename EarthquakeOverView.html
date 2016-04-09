@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    path {
+        stroke: white;
+        stroke-width: 0.25px;
+        fill: grey;
+    }
+    circle {
+        fill: rgba(255, 0, 0, 0.5);
+    }
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script>
+    var width = 1360,
+            height = 500;
+
+    var projection = d3.geo.mercator()
+            .center([0, 5 ])
+            .scale(150)
+            .rotate([-180,0]);
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+    var path = d3.geo.path()
+            .projection(projection);
+
+    var g = svg.append("g");
+
+    var rColumn = "mag";
+    var rScale = d3.scale.sqrt();
+    var dollorPerPixel = 0.1;
+
+    // load and display the World
+    d3.json("world-110m2.json", function(error, topology) {
+
+// load and display the cities
+        d3.csv("earthquake.csv", function(error, data) {
+
+            rScale.domain([0, d3.max(data, function (d){ return +d[rColumn]; })]);
+            var magMax = rScale.domain()[1];
+
+            var rMin = 0;
+            var rMax = Math.sqrt(magMax / (dollorPerPixel * Math.PI));
+            rScale.range([rMin, rMax]);
+            console.log("rMin:"+rMin+", rMax"+rMax);
+            g.selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("cx", function(d) {
+                        return projection([d["longitude"], d["latitude"]])[0];
+                    })
+                    .attr("cy", function(d) {
+                        return projection([d["longitude"], d["latitude"]])[1];
+                    })
+                    .attr("r", function (d){ return rScale(d[rColumn]); });
+        });
+
+
+        g.selectAll("path")
+                .data(topojson.object(topology, topology.objects.countries)
+                        .geometries)
+                .enter()
+                .append("path")
+                .attr("d", path)
+    });
+
+    // zoom and pan
+    var zoom = d3.behavior.zoom()
+            .on("zoom",function() {
+                g.attr("transform","translate("+
+                        d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+                g.selectAll("circle")
+                        .attr("d", path.projection(projection));
+                g.selectAll("path")
+                        .attr("d", path.projection(projection));
+
+            });
+
+    svg.call(zoom)
+
+</script>
+</body>
+</html>
