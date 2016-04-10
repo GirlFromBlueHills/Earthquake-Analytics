@@ -44,7 +44,6 @@
             var rMin = 3;
             var rMax = 10;
             rScale.range([rMin, rMax]);
-            console.log(rScale.domain()[0]+", "+rScale.domain()[1]);
 
             tScale.domain(d3.extent(data,function (d){ return new Date(d["time"]);}))
                     .range([0,20e3]);
