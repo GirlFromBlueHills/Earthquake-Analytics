@@ -35,10 +35,10 @@
     var rScale = d3.scale.sqrt();
     var tScale = d3.time.scale();
     // load and display the World
-    d3.json("world-110m2.json", function(error, topology) {
+    d3.json("json/world-110m2.json", function(error, topology) {
 
 // load and display the cities
-        d3.csv("earthquake.csv", function(error, data) {
+        d3.csv("csv/earthquake.csv", function(error, data) {
 
             rScale.domain(d3.extent(data, function (d){ return +d[rColumn]; }));
             var rMin = 3;
