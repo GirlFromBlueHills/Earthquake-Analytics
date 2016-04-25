@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    .land {
+        fill: #999;
+        stroke-opacity: 1;
+    }
+
+    circle {
+        fill: rgba(255, 0, 0, 0.5);
+    }
+
+</style>
+
+<body>
+<div id = "tooltip"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script>
+
+d3.select(window)
+        .on("mousemove", mousemove)
+        .on("mouseup", mouseup);
+
+var width = 960,
+        height = 500;
+
+var proj = d3.geo.orthographic()
+        .translate([width / 2, height / 2])
+        .clipAngle(90)
+        .scale(220);
+
+var pointpath = function(d, r) {
+    var pr = d3.geo.path().projection(proj).pointRadius(r);
+    return pr({type: "Point", coordinates: [d.lon, d.lat]})
+}
+
+var path = d3.geo.path().projection(proj).pointRadius(2);
+
+
+var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mousedown", mousedown);
+
+
+var probe = d3.select("body").append("div")
+        .attr("id","probe");
+
+
+var point = d3.geo.circle();
+
+queue()
+        .defer(d3.json, "world-110m2.json")
+        .defer(d3.csv,"earthquake.csv")
+        .await(ready);
+
+function ready(error, world, places) {
+    startAnimation();
+    d3.select('#animate').on('click', function () {
+        if (done) startAnimation(); else stopAnimation();
+    });
+
+
+    var ocean_fill = svg.append("defs").append("radialGradient")
+            .attr("id", "ocean_fill")
+            .attr("cx", "75%")
+            .attr("cy", "25%");
+    ocean_fill.append("stop").attr("offset", "5%").attr("stop-color", "#fff");
+    ocean_fill.append("stop").attr("offset", "100%").attr("stop-color", "blue");
+
+    var globe_highlight = svg.append("defs").append("radialGradient")
+            .attr("id", "globe_highlight")
+            .attr("cx", "75%")
+            .attr("cy", "25%");
+    globe_highlight.append("stop")
+            .attr("offset", "5%").attr("stop-color", "#ffd")
+            .attr("stop-opacity","0.6");
+    globe_highlight.append("stop")
+            .attr("offset", "100%").attr("stop-color", "#ba9")
+            .attr("stop-opacity","0.2");
+
+    var globe_shading = svg.append("defs").append("radialGradient")
+            .attr("id", "globe_shading")
+            .attr("cx", "55%")
+            .attr("cy", "45%");
+    globe_shading.append("stop")
+            .attr("offset","30%").attr("stop-color", "#fff")
+            .attr("stop-opacity","0")
+    globe_shading.append("stop")
+            .attr("offset","100%").attr("stop-color", "#505962")
+            .attr("stop-opacity","0.3")
+
+    var drop_shadow = svg.append("defs").append("radialGradient")
+            .attr("id", "drop_shadow")
+            .attr("cx", "50%")
+            .attr("cy", "50%");
+    drop_shadow.append("stop")
+            .attr("offset","20%").attr("stop-color", "#000")
+            .attr("stop-opacity",".5")
+    drop_shadow.append("stop")
+            .attr("offset","100%").attr("stop-color", "#000")
+            .attr("stop-opacity","0")
+
+    svg.append("ellipse")
+            .attr("cx", 440).attr("cy", 450)
+            .attr("rx", proj.scale()*.90)
+            .attr("ry", proj.scale()*.25)
+            .attr("class", "noclicks")
+            .style("fill", "url(#drop_shadow)");
+
+    svg.append("circle")
+            .attr("cx", width / 2).attr("cy", height / 2)
+            .attr("r", proj.scale())
+            .attr("class", "noclicks")
+            .style("fill", "url(#ocean_fill)");
+
+    svg.append("path")
+            .datum(topojson.object(world, world.objects.land))
+            .attr("class", "land noclicks")
+            .attr("d", path);
+
+    svg.append("circle")
+            .attr("cx", width / 2).attr("cy", height / 2)
+            .attr("r", proj.scale())
+            .attr("class","noclicks")
+            .style("fill", "url(#globe_highlight)");
+
+    svg.append("circle")
+            .attr("cx", width / 2).attr("cy", height / 2)
+            .attr("r", proj.scale())
+            .attr("class","noclicks")
+            .style("fill", "url(#globe_shading)");
+
+
+
+
+    //draw points on the sphere
+
+    var point = svg.selectAll("circle").data(places);
+
+    var time, mag;
+    point.enter().append("path")
+            .attr("class", "point")
+                 .datum(function(d) { return {
+                type: "Point",
+                coordinates: [d.longitude, d.latitude],
+                time: d.time,
+                mag: d.mag
+            }; })
+            .on("mousemove",function(d){
+                setProbeContent(d);
+                probe
+                        .style( {
+                            "display" : "block",
+                            "top" : (d3.event.pageY - 80) + "px",
+                            "left" : (d3.event.pageX + 10) + "px"
+                        })
+            })
+            .on("mouseout",function(){
+                hoverData = null;
+                probe.style("display","none");
+            })
+            .attr("d", path)
+            .style("opacity", 0.3)
+            .attr("fill", "red" );
+
+    function setProbeContent(d){
+
+        var html = "Time: "+d.time+"</br>"+"Longitude: "+ d.coordinates[0]+"   "+"Latitude: "+ d.coordinates[1]+"</br>"+"Magnitude: "+ d.mag+"</br>";
+        probe
+                .html( html );
+    }
+
+
+    point.exit().remove();
+
+
+
+
+
+//    svg.selectAll("circle")
+//            .data(places)
+//            .enter().append("path")
+//            .datum(function(d) {
+//                return {type: "Point",
+//                    coordinates: [d.longitude, d.latitude]};
+//            })
+//            .attr("d", path);
+
+//    var rColumn = "mag";
+//    var rScale = d3.scale.sqrt();
+//
+//    var g = svg.append("g");
+//
+//    rScale.domain(d3.extent(places, function (d){ return +d[rColumn]; }));
+//    var rMin = 3;
+//    var rMax = 10;
+//    rScale.range([rMin, rMax]);
+//
+//
+//    var dots = g.selectAll("path")
+//            .data(places);
+//    dots.enter().append("path")
+//            .datum(function(d) { return {
+//                type: "Point",
+//                coordinates: [d.longitude, d.latitude]
+//            }; })
+//            .attr("d", path)
+
+//    svg.append("g")
+//            .datum(d3.geo.circle().angle(45))
+//            .attr("d", path);
+//    dots.attr("cx", function(d) {
+//        return proj([d["longitude"], d["latitude"]])[0];
+//    }).attr("cy", function(d) {
+//        return proj([d["longitude"], d["latitude"]])[1];
+//    });
+//    dots.transition()
+//            .attr("d", function (d){ return rScale(d[rColumn]); })
+
+
+//    dots.exit().remove();
+
+
+    refresh();
+}
+
+
+function refresh() {
+    svg.selectAll(".land").attr("d", path);
+    svg.selectAll(".point").attr("d", path);
+
+
+}
+
+
+function stopAnimation() {
+    done = true;
+    setInterval(bgscroll, 0);
+    refresh();
+    d3.select('#animate').node().checked = false;
+}
+function startAnimation() {
+    done = false;
+    var scrollSpeed = 50; var current = 0;
+
+//    var λ = d3.scale.linear()
+//            .domain([0, width])
+//            .range([-180, 180]);
+//
+//    function bgscroll(){
+//        current += 1;
+//        proj.rotate([λ(current), 0]);
+//        svg.selectAll("path").attr("d", path);
+//    }
+//
+//    setInterval(bgscroll, scrollSpeed);
+}
+// modified from http://bl.ocks.org/1392560
+var m0, o0;
+function mousedown() {
+    m0 = [d3.event.pageX, d3.event.pageY];
+    o0 = proj.rotate();
+    d3.event.preventDefault();
+}
+function mousemove() {
+    if (m0) {
+        var m1 = [d3.event.pageX, d3.event.pageY]
+                , o1 = [o0[0] + (m1[0] - m0[0]) / 6, o0[1] + (m0[1] - m1[1]) / 6];
+        o1[1] = o1[1] > 30  ? 30  :
+                        o1[1] < -30 ? -30 :
+                o1[1];
+        proj.rotate(o1);
+        svg.selectAll("path.point").attr("d", function(d) {return pointpath(d, d.r)});
+        refresh();
+    }
+}
+function mouseup() {
+    if (m0) {
+        mousemove();
+        m0 = null;
+    }
+}
+
+
+
+</script>
