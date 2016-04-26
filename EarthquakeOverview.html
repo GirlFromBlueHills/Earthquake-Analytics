@@ -1,6 +1,19 @@
 <!DOCTYPE html>
+<Head>
+    <H1><center>Earthquake Overview</center></H1>
 <meta charset="utf-8">
 <style>
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .dot {
+        stroke: #000;
+    }
 
     .land {
         fill: #999;
@@ -10,15 +23,66 @@
     circle {
         fill: rgba(255, 0, 0, 0.5);
     }
+    div.ball  {
+        position:fixed;
+        bottom: 100;
+        right: 300;
+        width: 700px;
+    }
+
+    div.scatterplot{
+        position:fixed;
+        hight: 1000;
+        bottom: 100;
+        right: 0;
+        width: 1000px;
+    }
+    div.background{
+        position:fixed;
+        hight: 500;
+        bottom: 70px;
+        right: 400px;
+        width: 1000px;
+    }
+    div.barChart{
+        float:right;
+    }
+
 
 </style>
-
+</Head>
 <body>
+<button onclick="previousPage();">Back</button>
+<button onclick="nextPage();">Continue</button>
+
+<div id="option">
+    <input id="playOrStop"
+           type="button"
+           value="Play Or Stop" />
+</div>
+<div class = "ball" id = "ball"></div>
+<div class = "scatterplot" id = "scatterplot"></div>
 <div id = "tooltip"></div>
+<div class = "background"><H1>Is there a correlation between the earthquake's magnitude and its depth?</H1>
+"The simple answer is that the largest earthquakes occur at shallower depths in the earth's crust, but smaller earthquakes can and do occur at all depths down to about 700 km (400 mi).
+Earthquakes occur in the earth's crust, the topmost layer of the earth, which is typically 7 to 30 km (4 to 18 mi) thick. The crust is the coldest and most brittle part of the earth, and has many fault systems on which earthquakes occur. These earthquakes are caused by the buildup of tectonic stress, and result in frictional sliding on the faults.
+Earthquakes also occur in the parts of the tectonic plates that are being pushed down into the earth, called subducting slabs. These slabs are known to penetrate down to depths of 700 km (400 mi) or so. At these depths, the higher temperatures make rock softer. It is not yet understood how frictional sliding can occur there, but earthquakes still occur. An alternative explanation may be that those deep earthquakes are caused by some kind of "phase transition", where the physical structure of the rocks suddenly changes to a different state.
+Smaller magnitude earthquakes, those that have magnitudes less than about 7, are known to occur in both the crust and in the subducting slabs. Larger magnitude earthquakes, those having magnitudes up to the largest observed magnitude of 9.5 (1960 Chile earthquake), typically occur within the earth's crust. These large and great earthquakes are associated with frictional sliding on faults, which can only occur at colder temperatures."
+    </br></br>                                 ---- Ref: <a href="http://www.openhazards.com/faq/earthquakes-faults-plate-tectonics-earth-structure-user-submitted-questions/there-correlation">http://www.openhazards.com/faq/earthquakes-faults-plate-tectonics-earth-structure-user-submitted-questions/there-correlation</a>
+</div>
+
+
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v0.min.js"></script>
+<script src="js/Scatterplot.js"></script>
 <script>
+function previousPage(){
+    window.location='EarthquakeOverView.html';
+}
+function nextPage(){
+    window.location='fracking_vs_earthquakes.html';
+}
 
 d3.select(window)
         .on("mousemove", mousemove)
@@ -37,29 +101,31 @@ var pointpath = function(d, r) {
     return pr({type: "Point", coordinates: [d.lon, d.lat]})
 }
 
+var animation_control;
+
 var path = d3.geo.path().projection(proj).pointRadius(2);
 
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#ball").append("svg")
         .attr("width", width)
         .attr("height", height)
         .on("mousedown", mousedown);
 
 
-var probe = d3.select("body").append("div")
+var probe = d3.select("#ball").append("div")
         .attr("id","probe");
 
-
+var done = false;
 var point = d3.geo.circle();
 
 queue()
-        .defer(d3.json, "world-110m2.json")
-        .defer(d3.csv,"earthquake.csv")
+        .defer(d3.json,"json/world-110m2.json")
+        .defer(d3.csv,"csv/earthquake.csv")
         .await(ready);
 
 function ready(error, world, places) {
     startAnimation();
-    d3.select('#animate').on('click', function () {
+    d3.select('#playOrStop').on('click', function () {
         if (done) startAnimation(); else stopAnimation();
     });
 
@@ -169,7 +235,7 @@ function ready(error, world, places) {
 
     function setProbeContent(d){
 
-        var html = "Time: "+d.time+"</br>"+"Longitude: "+ d.coordinates[0]+"   "+"Latitude: "+ d.coordinates[1]+"</br>"+"Magnitude: "+ d.mag+"</br>";
+        var html = "Time: "+new Date(d["time"])+"</br>"+"Longitude: "+ d.coordinates[0]+"   "+"Latitude: "+ d.coordinates[1]+"</br>"+"Magnitude: "+ d.mag+"</br>";
         probe
                 .html( html );
     }
@@ -177,52 +243,6 @@ function ready(error, world, places) {
 
     point.exit().remove();
 
-
-
-
-
-//    svg.selectAll("circle")
-//            .data(places)
-//            .enter().append("path")
-//            .datum(function(d) {
-//                return {type: "Point",
-//                    coordinates: [d.longitude, d.latitude]};
-//            })
-//            .attr("d", path);
-
-//    var rColumn = "mag";
-//    var rScale = d3.scale.sqrt();
-//
-//    var g = svg.append("g");
-//
-//    rScale.domain(d3.extent(places, function (d){ return +d[rColumn]; }));
-//    var rMin = 3;
-//    var rMax = 10;
-//    rScale.range([rMin, rMax]);
-//
-//
-//    var dots = g.selectAll("path")
-//            .data(places);
-//    dots.enter().append("path")
-//            .datum(function(d) { return {
-//                type: "Point",
-//                coordinates: [d.longitude, d.latitude]
-//            }; })
-//            .attr("d", path)
-
-//    svg.append("g")
-//            .datum(d3.geo.circle().angle(45))
-//            .attr("d", path);
-//    dots.attr("cx", function(d) {
-//        return proj([d["longitude"], d["latitude"]])[0];
-//    }).attr("cy", function(d) {
-//        return proj([d["longitude"], d["latitude"]])[1];
-//    });
-//    dots.transition()
-//            .attr("d", function (d){ return rScale(d[rColumn]); })
-
-
-//    dots.exit().remove();
 
 
     refresh();
@@ -238,30 +258,31 @@ function refresh() {
 
 
 function stopAnimation() {
+    clearInterval(animation_control);
     done = true;
-    setInterval(bgscroll, 0);
-    refresh();
-    d3.select('#animate').node().checked = false;
+
 }
 function startAnimation() {
     done = false;
     var scrollSpeed = 50; var current = 0;
 
-//    var λ = d3.scale.linear()
-//            .domain([0, width])
-//            .range([-180, 180]);
-//
-//    function bgscroll(){
-//        current += 1;
-//        proj.rotate([λ(current), 0]);
-//        svg.selectAll("path").attr("d", path);
-//    }
-//
-//    setInterval(bgscroll, scrollSpeed);
+    var λ = d3.scale.linear()
+            .domain([0, width])
+            .range([-180, 180]);
+
+    function bgscroll(){
+        current += 1;
+        proj.rotate([λ(current), 0]);
+        svg.selectAll("path").attr("d", path);
+    }
+
+    animation_control = setInterval(bgscroll, scrollSpeed);
+
 }
 // modified from http://bl.ocks.org/1392560
 var m0, o0;
 function mousedown() {
+    stopAnimation();
     m0 = [d3.event.pageX, d3.event.pageY];
     o0 = proj.rotate();
     d3.event.preventDefault();
