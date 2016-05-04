@@ -13,11 +13,11 @@ var margin = {top: 20, right: 20, bottom: 30, left: 40},
 var xValue = function(d) { return d.mag;}, // data -> value
     xScale = d3.scale.linear().range([0, width]), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
-    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+    xAxis = d3.svg.axis().scale(xScale).orient("top");
 
 // setup y
 var yValue = function(d) { return d.depth;}, // data -> value
-    yScale = d3.scale.linear().range([height, 0]), // value -> display
+    yScale = d3.scale.linear().range([0, height]), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
     yAxis = d3.svg.axis().scale(yScale).orient("left");
 
@@ -35,7 +35,6 @@ var scatterplot = d3.select("#scatterplot").append("svg")
 // add the tooltip area to the webpage
 var tooltip = d3.select("#scatterplot").append("div")
     .attr("class", "tooltip")
-    .style("opacity", 0);
 
 // load data
 d3.csv("./csv/earthquake.csv", function(error, data) {
@@ -54,11 +53,11 @@ d3.csv("./csv/earthquake.csv", function(error, data) {
     // x-axis
     scatterplot.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + 450 + ")")
+        .attr("transform", "translate(0," + 0 + ")")
         .call(xAxis)
         .append("text")
         .attr("class", "label")
-        .attr("x", width)
+        .attr("x", width-50)
         .attr("y", -6)
         .style("text-anchor", "end")
         .text("Magnitude");
@@ -72,6 +71,8 @@ d3.csv("./csv/earthquake.csv", function(error, data) {
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
+        .attr("dx", "-26em")
+
         .style("text-anchor", "end")
         .text("Depth");
 
