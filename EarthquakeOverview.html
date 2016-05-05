@@ -115,10 +115,13 @@
         return pr({type: "Point", coordinates: [d.lon, d.lat]})
     }
 
-    var animation_control;
+
+    var i = -1,n;
+
 
     var path = d3.geo.path().projection(proj).pointRadius(2);
 
+    var rotate = d3_geo_greatArcInterpolator();
 
     var svg = d3.select("#ball").append("svg")
             .attr("width", width)
@@ -130,8 +133,12 @@
             .attr("id","probe")
             .attr("class", "earth_tooltip");
 
-    var done = false;
+    var isPlay = true;
     var point = d3.geo.circle();
+
+    var title;
+
+    var position;
 
     queue()
             .defer(d3.json,"json/world-110m2.json")
@@ -139,10 +146,12 @@
             .await(ready);
 
     function ready(error, world, places) {
-        startAnimation();
-        d3.select('#playOrStop').on('click', function () {
-            if (done) startAnimation(); else stopAnimation();
-        });
+        n = places.length;
+        position = places;
+//        startAnimation();
+//        d3.select('#playOrStop').on('click', function () {
+//            if (done) startAnimation(); else stopAnimation();
+//        });
 
 
 
@@ -217,12 +226,9 @@
                 .style("fill", "url(#globe_shading)");
 
 
-
-
         //draw points on the sphere
 
-        var point = svg.selectAll("circle").data(places);
-
+        point = svg.selectAll(".dot").data(places);
         var time, mag;
         point.enter().append("path")
                 .attr("class", "point")
@@ -246,7 +252,7 @@
                     probe.style("display","none");
                 })
                 .attr("d", path)
-                .style("opacity", 0.3)
+                .style("opacity", 0)
                 .attr("fill", "red" );
 
         function setProbeContent(d){
@@ -255,6 +261,25 @@
             probe
                     .html( html );
         }
+
+        title = svg.append("text")
+                .attr("x", 1*width / 5)
+                .attr("y", height * 1 / 20);
+
+
+        //rotation animation
+
+        startAnimation();
+        d3.select('#playOrStop').on('click', function () {
+            if (isPlay){
+                isPlay = false;
+            }else{
+                isPlay = true;
+            }
+            startAnimation();
+        });
+
+
 
 
     }
@@ -267,33 +292,41 @@
 
     }
 
-
-    function stopAnimation() {
-        clearInterval(animation_control);
-        done = true;
-
-    }
     function startAnimation() {
-        done = false;
-        var scrollSpeed = 50; var current = 0;
 
-        var λ = d3.scale.linear()
-                .domain([0, width])
-                .range([-180, 180]);
-
-        function bgscroll(){
-            current += 1;
-            proj.rotate([λ(current), 0]);
-            svg.selectAll("path").attr("d", path);
+        if (--i <= 0) i = n-1;
+        if(isPlay == false){
+            title.text("");
+            point.style("opacity",0.3);
+            return;
         }
+        title.text(new Date(position[i].time)+"\r\n"+"Longitude: "+ position[i].longitude +" Latitude: "+ position[i].latitude+"\n"+ " Magnitude: " + position[i].mag);
 
-        animation_control = setInterval(bgscroll, scrollSpeed);
+        point.transition()
+                .style("opacity", function(d, j) { return j === i ? "1":"0" ; })
+        ;
 
+        d3.transition()
+                .delay(250)
+                .duration(1500)
+                .tween("rotate", function() {
+                    var p = [position[i].longitude,position[i].latitude];
+                    rotate.source(proj.rotate()).target([-p[0], -p[1]]).distance();
+                    return function(t) {
+                        proj.rotate(rotate(t));
+                        svg.selectAll(".land").attr("d", path);
+                        svg.selectAll(".point").attr("d", path);
+                    };
+                })
+                .transition()
+                .each("end", startAnimation);
     }
+
+
     // modified from http://bl.ocks.org/1392560
     var m0, o0;
     function mousedown() {
-        stopAnimation();
+        isPlay = false;
         m0 = [d3.event.pageX, d3.event.pageY];
         o0 = proj.rotate();
         d3.event.preventDefault();
