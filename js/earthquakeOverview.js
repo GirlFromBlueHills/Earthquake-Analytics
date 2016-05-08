@@ -6,7 +6,7 @@ function nextPage(){
     window.location='fracking_vs_earthquakes.html';
 }
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
+var margin = {top: 30, right: 30, bottom: 30, left: 40},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -134,7 +134,7 @@ var pointpath = function(d, r) {
 var i = -1,n;
 
 
-var path = d3.geo.path().projection(proj).pointRadius(2);
+var path = d3.geo.path().projection(proj).pointRadius(5);
 
 var rotate = d3_geo_greatArcInterpolator();
 
@@ -274,7 +274,7 @@ function ready(error, world, places) {
     }
 
     title = svg.append("text")
-        .attr("x", 1*width / 5)
+        .attr("x", 1*width / 15)
         .attr("y", height * 1 / 20);
 
 
