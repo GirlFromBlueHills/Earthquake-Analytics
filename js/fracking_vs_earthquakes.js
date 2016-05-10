@@ -1,9 +1,9 @@
-var width = 960,
+var width = 1400,
     height = 600;
 
 var projection = d3.geo.mercator()
-    .center([-130, 50 ])
-    .scale(400);
+    .center([-150, 55 ])
+    .scale(430);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -52,9 +52,7 @@ d3.json("json/us.json", function(error, us) {
 
     d3.select("body")
         .append("div")
-        .style("top",d3.select("#play").node().offsetTop + "px")
-        .style("height",d3.select("#date").node().offsetHeight + d3.select("#map-container").node().offsetHeight + "px")
-
+        .style("height",d3.select("#map-container").node().offsetHeight + "px")
     d3.csv("csv/earthquake_usa.csv", function(error, data) {
 
         rScale.domain(d3.extent(data, function (d){ return +d[rColumn]; }));
@@ -143,19 +141,6 @@ d3.json("json/us.json", function(error, us) {
         createLegend();
 
 
-        d3.select("#play")
-            .attr("title","Play animation")
-            .on("click",function(){
-                if ( !isPlaying ){
-                    isPlaying = true;
-                    d3.select(this).classed("pause",true).attr("title","Pause animation");
-                    //animate();
-                } else {
-                    isPlaying = false;
-                    d3.select(this).classed("pause",false).attr("title","Play animation");
-                    //clearInterval( interval );
-                }
-            })
     });
     // zoom and pan
     var zoom = d3.behavior.zoom()
@@ -174,7 +159,7 @@ d3.json("json/us.json", function(error, us) {
 });
 
 function createLegend() {
-    var legend = g.append("g").attr("id", "legend").attr("transform", "translate(560,10)");
+    var legend = g.append("g").attr("id", "legend").attr("transform", "translate(800,10)");
 
     legend.append("circle").attr("class", "earthquake").attr("r", 5).attr("cx", 5).attr("cy",10);
     legend.append("circle").attr("class", "fracking").attr("r", 5).attr("cx", 5).attr("cy", 30);
