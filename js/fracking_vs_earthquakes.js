@@ -163,7 +163,107 @@ function createLegend() {
 
     legend.append("circle").attr("class", "earthquake").attr("r", 5).attr("cx", 5).attr("cy",10);
     legend.append("circle").attr("class", "fracking").attr("r", 5).attr("cx", 5).attr("cy", 30);
+    legend.append("circle").attr("class", "highlight").attr("r", 5).attr("cx", 5).attr("cy", 50);
 
     legend.append("text").text("earthquake").attr("x", 15).attr("y", 10);
     legend.append("text").text("fracking").attr("x", 15).attr("y", 30);
+    legend.append("text").text("highlight earthquake").attr("x", 15).attr("y", 50);
+}
+
+//update data section
+function updateData() {
+
+    var place = document.getElementById('place').value;
+    var start = new Date(document.getElementById('start').value);
+    var end = new Date(document.getElementById('end').value);
+    end.setDate(end.getDate()+1);
+    d3.csv("csv/earthquake_usa.csv", function(error, data) {
+        rScale.domain(d3.extent(data, function (d){ return +d[rColumn]; }));
+        var rMin = 3;
+        var rMax = 10;
+        rScale.range([rMin, rMax]);
+
+
+        var dots =g.selectAll("circle")
+            .data(data);
+        dots.enter().append("circle");
+        dots.attr("cx", function(d) {
+            return projection([parseFloat(d["longitude"]), parseFloat(d["latitude"])])[0];
+        }).attr("cy", function(d) {
+            return projection([parseFloat(d["longitude"]), parseFloat(d["latitude"])])[1];
+        })
+            .on("mousemove",function(d){
+                setProbeContent(d);
+                probe
+                    .style( {
+                        "display" : "block",
+                        "top" : (d3.event.pageY - 80) + "px",
+                        "left" : (d3.event.pageX + 10) + "px"
+                    })
+            })
+            .on("mouseout",function(){
+                hoverData = null;
+                probe.style("display","none");
+            });
+
+        dots.attr("r", function (d){ return rScale(d[rColumn]); });
+        dots.style("fill", function(d){
+            var flag = filter(d);
+            if(flag){
+                return "rgba(250, 237, 40, 0.5)";
+            }else{
+                return "rgba(255, 0, 0, 0.5)";
+            }
+        });
+
+        function filter(d){
+            var placeFlag = false;
+            var timeFlag = false;
+            if(place!=null && place!="" && (d.place.toLowerCase().indexOf(place.toLowerCase()) != -1)){
+                placeFlag = true;
+            }
+            d["time"] = new Date(d["time"]);
+            if(start != "Invalid Date" && end != "Invalid Date") {
+                if (d["time"] >= start && d["time"] <= end) {
+                    timeFlag = true;
+                }
+            //    Fill end
+            }else if(start =="Invalid Date" && end != "Invalid Date"){
+                if (d["time"] <= end) {
+                    timeFlag = true;
+                }
+            // Fill start
+            }else if(start !="Invalid Date" && end == "Invalid Date"){
+                if (d["time"] >= start) {
+                    timeFlag = true;
+                }
+                //Not fill at all
+            }else{
+                timeFlag = true;
+            }
+            if(placeFlag && timeFlag){
+                console.log("Yes! time: "+d["time"]+", place:"+ d.place);
+                return true;
+            }else{
+                console.log("No! time: "+d["time"]+", place:"+ d.place);
+                return false;
+            }
+        }
+
+        function setProbeContent(d){
+
+            var html = "Earthquake location: "+d["place"]
+                +"</br>"+"Longitude: "+ d["longitude"]+"   "+"Latitude: "+ d["latitude"]+""
+                +"</br>"+"Magnitude: "+ d["mag"]
+                +"</br>"+"depth: "+ d["depth"]
+                +"</br>"+"Time: "+ new Date(d["time"]);
+            probe
+                .html( html );
+        }
+
+
+        dots.exit().remove();
+        createLegend();
+    });
+
 }

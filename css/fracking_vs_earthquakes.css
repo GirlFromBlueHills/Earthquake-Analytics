@@ -26,6 +26,11 @@ circle.earthquake{
 circle.fracking{
     fill: rgb(0,200,255);
 }
+circle.highlight{
+    fill: rgb(250, 237, 40);
+}
+
+
 #map circle{
     opacity: .65;
 }

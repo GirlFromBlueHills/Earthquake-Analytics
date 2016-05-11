@@ -12,6 +12,25 @@
     <h1>Earthquake Analytics</h1>
     <h2>Relationship between earthquake and fracking in the United States</h2>
     <p id="intro">Some earthquakes happened near the fracking place in the middle of the U.S.</p>
+
+    <!-- set inputs for the query -->
+    <div id="new_input">
+        &nbsp &nbsp
+        Place: <input type="text" name="place" id="place" value=""
+                      style="width: 70px;">
+        &nbsp &nbsp
+        Start: <input type="text" name="start" id="start" value="2016/02/22"
+                      style="width: 80px;">
+        &nbsp &nbsp
+        End: <input type="text" name="end" id="end" value="2016/03/23"
+                    style="width: 80px;">
+        &nbsp &nbsp
+        <input name="updateButton"
+               type="button"
+               value="Update"
+               onclick="updateData()" />
+    </div>
+
     <div id="map-container"></div>
 
     <div class='container' style='font: 12px sans-serif;'>
