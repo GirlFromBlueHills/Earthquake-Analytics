@@ -1,3 +1,7 @@
+function previousPage(){
+    window.location='EarthquakeOverview.html';
+}
+
 var width = 1400,
     height = 600;
 

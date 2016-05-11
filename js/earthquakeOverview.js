@@ -1,6 +1,6 @@
 
 function previousPage(){
-    window.location='EarthquakeOverView.html';
+    window.location='EarthquakeOverview.html';
 }
 function nextPage(){
     window.location='fracking_vs_earthquakes.html';
