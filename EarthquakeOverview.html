@@ -25,7 +25,7 @@
         }
 
         body {
-            height: 1000px;
+            height: 500px;
             width: 1920px;
             overflow: scroll;
         }
@@ -38,20 +38,32 @@
         }
         .tooltip {
             position: absolute;
-            width: 200px;
+            text-align: center;
+            width: 100px;
             height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
             pointer-events: none;
-            background: white;
-            opacity: 1;
         }
 
         .earth_tooltip {
             position: absolute;
+            text-align: center;
             width: 300px;
-            height: 28px;
+            height: 40px;
+            padding: 2px;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
             pointer-events: none;
-            opacity: 1;
         }
+
+        .legend rect {
+            fill:white;
+            stroke:black;
+            opacity:0.8;}
 
         .axis path,
         .axis line {
@@ -60,13 +72,106 @@
             shape-rendering: crispEdges;
         }
 
+        .my-legend .legend-title {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 90%;
+        }
+        .my-legend .legend-scale ul {
+            margin: 0;
+            margin-bottom: 5px;
+            padding: 0;
+            float: left;
+            list-style: none;
+        }
+        .my-legend .legend-scale ul li {
+            font-size: 80%;
+            list-style: none;
+            margin-left: 0;
+            line-height: 18px;
+            margin-bottom: 2px;
+        }
+        .my-legend ul.legend-labels li span {
+            display: circle;
+            float: left;
+            height: 10px;
+            width: 10px;
+            margin-right: 5px;
+            margin-left: 0;
+            border: 1px solid #999;
+        }
 
+        .mapData {
+            fill: #E6E6E6;
+            stroke: #000000;
+            stroke-width: 1px;
+        }
+
+        .ortho {
+            /*fill: #E6E6E6;*/
+            stroke: #E6E6E6;
+            stroke-width: 1px;
+        }
+
+        .mapData:hover {
+            fill: #66C2FF;
+        }
+        .zone {
+            stroke-width: .5px;
+            stroke-linejoin: round;
+            cursor: pointer;
+        }
+
+        .zoneTooltip {
+            position: absolute;
+            display: none;
+            pointer-events: none;
+            background: #fff;
+            padding: 3px;
+            text-align: left;
+            border: solid #ccc 1px;
+            color: #666;
+            font-size: 12px;
+            font-family: sans-serif;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .infoLabel {
+            position: absolute;
+            bottom: 15px;
+            left: 10px;
+            display: none;
+            border: solid #ccc 1px;
+            color: #666;
+            background: #FFFFFF;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            -webkit-box-shadow: 0px 0px 3px #66C2FF;
+            -moz-box-shadow: 0px 0px 3px #66C2FF;
+            box-shadow: 0px 0px 3px #66C2FF;
+            text-align: left;
+            padding: 2px;
+            font-size: 12px;
+            font-family: sans-serif;
+            pointer-events: none;
+        }
+
+        .mapData:hover {
+            fill: #66C2FF;
+        }
+
+        .focused {
+            fill: #FF7519;
+        }
 
 
     </style>
 </Head>
 <body>
-<button onclick="previousPage();">Back</button>
 <button onclick="nextPage();">Continue</button>
 
 <div id="option">
@@ -77,18 +182,34 @@
 <div class = "ball" id = "ball"></div>
 <div class = "scatterplot" id = "scatterplot"></div>
 <div id = "tooltip"></div>
-<div class = "background"><H1 style="text-align: center;">Is there a correlation between the earthquake's magnitude and its depth?</H1>
-    "The simple answer is that the largest earthquakes occur at shallower depths in the earth's crust, but smaller earthquakes can and do occur at all depths down to about 700 km (400 mi).
-    Earthquakes occur in the earth's crust, the topmost layer of the earth, which is typically 7 to 30 km (4 to 18 mi) thick. The crust is the coldest and most brittle part of the earth, and has many fault systems on which earthquakes occur. These earthquakes are caused by the buildup of tectonic stress, and result in frictional sliding on the faults.
-    Earthquakes also occur in the parts of the tectonic plates that are being pushed down into the earth, called subducting slabs. These slabs are known to penetrate down to depths of 700 km (400 mi) or so. At these depths, the higher temperatures make rock softer. It is not yet understood how frictional sliding can occur there, but earthquakes still occur. An alternative explanation may be that those deep earthquakes are caused by some kind of "phase transition", where the physical structure of the rocks suddenly changes to a different state.
-    Smaller magnitude earthquakes, those that have magnitudes less than about 7, are known to occur in both the crust and in the subducting slabs. Larger magnitude earthquakes, those having magnitudes up to the largest observed magnitude of 9.5 (1960 Chile earthquake), typically occur within the earth's crust. These large and great earthquakes are associated with frictional sliding on faults, which can only occur at colder temperatures."
-    </br></br>                                 ---- Ref: <a href="http://www.openhazards.com/faq/earthquakes-faults-plate-tectonics-earth-structure-user-submitted-questions/there-correlation">http://www.openhazards.com/faq/earthquakes-faults-plate-tectonics-earth-structure-user-submitted-questions/there-correlation</a>
+<div class = "background"><div class='my-legend'>
+    <div class='legend-title'>The earthquake magnitude</div>
+    <div class='legend-scale'>
+        <ul class='legend-labels'>
+            <li><span style='background:#FF8400;'></span>1</li>
+            <li><span style='background:#FF5500;'></span>2</li>
+            <li><span style='background:#FF3700;'></span>3</li>
+            <li><span style='background:#FF0000;'></span>4</li>
+            <li><span style='background:#FF0084;'></span>5</li>
+            <li><span style='background:#FF00B3;'></span>6</li>
+            <li><span style='background:#FF00E1;'></span>7</li>
+            <li><span style='background:#D400FF;'></span>8</li>
+            <li><span style='background:#BB00FF;'></span>9</li>
+            <li><span style='background:#A200FF;'></span>10</li>
+
+        </ul>
+    </div>
 </div>
+</div>
+
+
 
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>
-<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+
+
 <script src = "js/earthquakeOverview.js"></script>
 </body>
 </html>
