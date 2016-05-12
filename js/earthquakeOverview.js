@@ -181,7 +181,8 @@ function reset() {
     svg.selectAll(".focused").classed("focused", focused = false);
     infoLabel.style("display", "none");
     zoneTooltip.style("display", "none");
-
+    d3.selectAll("#ocean_color").transition().duration(5000).attr("offset", "100%")
+        .attr("stop-color", "blue");
     //Transforming Map to Globe
 
     projection = proj;
@@ -220,7 +221,11 @@ function ready(error, world, countryData, places) {
         .attr("cx", "75%")
         .attr("cy", "25%");
     ocean_fill.append("stop").attr("offset", "5%").attr("stop-color", "#fff");
-    ocean_fill.append("stop").attr("offset", "100%").attr("stop-color", "blue");
+    var ocean_color = ocean_fill.append("stop")
+        .attr("id", "ocean_color")
+        .attr("offset", "100%")
+        .attr("stop-color", "blue");
+
 
     var globe_highlight = svg.append("defs").append("radialGradient")
         .attr("id", "globe_highlight")
@@ -363,7 +368,8 @@ function ready(error, world, countryData, places) {
         })
         .on("click", function(d) {
             if (focused === d) return reset();
-            ocean_fill.style("visibility", "hidden");
+            d3.selectAll("#ocean_color").transition().duration(5000).attr("offset", "100%")
+                .attr("stop-color", "white");
             svg.selectAll(".focused").classed("focused", false);
             d3.select(this).classed("focused", focused = d);
             infoLabel.text(countryById[d.id])
