@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<Head>
+    <H1><center>Earthquake Overview</center></H1>
+    <meta charset="utf-8">
+    <style>
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .dot {
+            stroke: #000;
+        }
+
+        .land {
+            fill: #999;
+            stroke-opacity: 1;
+        }
+
+        circle {
+            fill: rgba(255, 0, 0, 0.5);
+        }
+
+        body {
+            height: 500px;
+            width: 1920px;
+            overflow: scroll;
+        }
+
+        div.ball, div.scatterplot div.background{
+            position: relative;
+            float: left;
+            height: 500px;
+            width: 960px;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: 100px;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .earth_tooltip {
+            position: absolute;
+            text-align: center;
+            width: 300px;
+            height: 40px;
+            padding: 2px;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .legend rect {
+            fill:white;
+            stroke:black;
+            opacity:0.8;}
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .my-legend .legend-title {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 90%;
+        }
+        .my-legend .legend-scale ul {
+            margin: 0;
+            margin-bottom: 5px;
+            padding: 0;
+            float: left;
+            list-style: none;
+        }
+        .my-legend .legend-scale ul li {
+            font-size: 80%;
+            list-style: none;
+            margin-left: 0;
+            line-height: 18px;
+            margin-bottom: 2px;
+        }
+        .my-legend ul.legend-labels li span {
+            display: circle;
+            float: left;
+            height: 10px;
+            width: 10px;
+            margin-right: 5px;
+            margin-left: 0;
+            border: 1px solid #999;
+        }
+
+        .mapData {
+            fill: #E6E6E6;
+            stroke: #000000;
+            stroke-width: 1px;
+        }
+
+        .ortho {
+            /*fill: #E6E6E6;*/
+            stroke: #E6E6E6;
+            stroke-width: 1px;
+        }
+
+        .mapData:hover {
+            fill: #66C2FF;
+        }
+        .zone {
+            stroke-width: .5px;
+            stroke-linejoin: round;
+            cursor: pointer;
+        }
+
+        .zoneTooltip {
+            position: absolute;
+            display: none;
+            pointer-events: none;
+            background: #fff;
+            padding: 3px;
+            text-align: left;
+            border: solid #ccc 1px;
+            color: #666;
+            font-size: 12px;
+            font-family: sans-serif;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .infoLabel {
+            position: absolute;
+            bottom: 15px;
+            left: 10px;
+            display: none;
+            border: solid #ccc 1px;
+            color: #666;
+            background: #FFFFFF;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            -webkit-box-shadow: 0px 0px 3px #66C2FF;
+            -moz-box-shadow: 0px 0px 3px #66C2FF;
+            box-shadow: 0px 0px 3px #66C2FF;
+            text-align: left;
+            padding: 2px;
+            font-size: 12px;
+            font-family: sans-serif;
+            pointer-events: none;
+        }
+
+        .mapData:hover {
+            fill: #66C2FF;
+        }
+
+        .focused {
+            fill: #FF7519;
+        }
+
+
+    </style>
+</Head>
+<body>
+<button onclick="nextPage();">Continue</button>
+
+<div id="option">
+    <input id="playOrStop"
+           type="button"
+           value="Play Or Stop" />
+</div>
+<div class = "ball" id = "ball"></div>
+<div class = "scatterplot" id = "scatterplot"></div>
+<div id = "tooltip"></div>
+<div class = "background"><div class='my-legend'>
+    <div class='legend-title'>The earthquake magnitude</div>
+    <div class='legend-scale'>
+        <ul class='legend-labels'>
+            <li>
+                <span style='background:#fff5f0;'></span>
+                <span style='background:#fee0d2;'></span>
+                <span style='background:#fcbba1;'></span>
+                <span style='background:#fc9272;'></span>
+                <span style='background:#fb6a4a;'></span>
+                <span style='background:#ef3b2c;'></span>
+                <span style='background:#cb181d;'></span>
+                <span style='background:#a50f15;'></span>
+                <span style='background:#67000d;'></span>
+            </li>
+            <li> &nbsp 1 &nbsp 2 &nbsp 3 &nbsp 4 &nbsp 5 &nbsp 6 &nbsp 7 &nbsp 8 &nbsp 9</li>
+
+
+        </ul>
+    </div>
+</div>
+</div>
+
+
+
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+
+
+<script src = "js/earthquakeOverview.js"></script>
+</body>
+</html>
