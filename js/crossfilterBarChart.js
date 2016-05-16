@@ -34,11 +34,6 @@ d3.csv("csv/earthquake_usa.csv", function (data) {
     var magValueGroupCount = magValue.group()
         .reduceCount(function(d) { return d.mag; }) // counts the number of the facts by magnitude
 
-    // For time
-    var timeDimension = facts.dimension(function (d) {
-        return d.dtg;
-    }); // group or filter by time
-
     // for Depth
     var depthValue = facts.dimension(function (d) {
         return d.depth;

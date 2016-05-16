@@ -34,7 +34,6 @@ g.append( "rect" )
 var rColumn = "mag";
 var rScale = d3.scale.sqrt();
 var tScale = d3.time.scale();
-var isPlaying = false;
 
 d3.json("json/us.json", function(error, us) {
     states = topojson.feature(us, us.objects.states).features;

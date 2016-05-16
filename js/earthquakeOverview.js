@@ -9,7 +9,7 @@ var margin = {top: 30, right: 30, bottom: 30, left: 40},
 
 
 function colores(n) {
-    var colores_g = ["#FF8400", "#FF5500", "#FF3700", "#FF0000", "#FF0084", "#FF00B3", "#FF00E1", "#D400FF", "#BB00FF", "#A200FF"];
+    var colores_g = ["#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#a50f15", "#67000d"];
     return colores_g[Math.round(n)];
 }
 
